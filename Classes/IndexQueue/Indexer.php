@@ -30,6 +30,7 @@ use ApacheSolrForTypo3\Solr\FrontendEnvironment\Exception\Exception as FrontendE
 use ApacheSolrForTypo3\Solr\FrontendEnvironment\Tsfe;
 use ApacheSolrForTypo3\Solr\IndexQueue\Exception\IndexingException;
 use ApacheSolrForTypo3\Solr\NoSolrConnectionFoundException;
+use ApacheSolrForTypo3\Solr\System\Configuration\ExtensionConfiguration;
 use ApacheSolrForTypo3\Solr\System\Logging\SolrLogManager;
 use ApacheSolrForTypo3\Solr\System\Records\Pages\PagesRepository;
 use ApacheSolrForTypo3\Solr\System\Solr\Document\Document;
@@ -81,6 +82,8 @@ class Indexer extends AbstractIndexer
     protected SolrLogManager $logger;
     protected EventDispatcherInterface $eventDispatcher;
 
+    protected ExtensionConfiguration $extensionConfiguration;
+
     public function __construct(
         array $options = [],
         PagesRepository $pagesRepository = null,
@@ -97,6 +100,7 @@ class Indexer extends AbstractIndexer
         $this->frontendEnvironment = $frontendEnvironment ?? GeneralUtility::makeInstance(FrontendEnvironment::class);
         $this->logger = $logger ?? GeneralUtility::makeInstance(SolrLogManager::class, __CLASS__);
         $this->eventDispatcher = $eventDispatcher ?? GeneralUtility::makeInstance(EventDispatcherInterface::class);
+        $this->extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
     }
 
     /**
@@ -610,7 +614,7 @@ class Indexer extends AbstractIndexer
      */
     protected function getDefaultLanguageUid(Item $item, array $rootPageRecord, array $siteLanguages): int
     {
-        $defaultLanguageUid = 0;
+        $defaultLanguageUid = $this->extensionConfiguration->getDefaultLanguageId();
         if (($rootPageRecord['l18n_cfg'] & 1) == 1 && count($siteLanguages) == 1 && $siteLanguages[min(array_keys($siteLanguages))] > 0) {
             $defaultLanguageUid = $siteLanguages[min(array_keys($siteLanguages))];
         } elseif (($rootPageRecord['l18n_cfg'] & 1) == 1 && count($siteLanguages) > 1) {

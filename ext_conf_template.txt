@@ -10,6 +10,9 @@ includeGlobalQParameterInCacheHash = 0
 # cat=basic/enable/b1; type=boolean; label=LLL:EXT:solr/Resources/Private/Language/locallang_be.xlf:extConf.useConfigurationFromClosestTemplate
 useConfigurationFromClosestTemplate = 0
 
+# cat=basic/enable/60; type=int+; label=Default Language Uid
+defaultLanguageUid = 0
+
 # cat=Monitoring/enable/c1; type=boolean; label=LLL:EXT:solr/Resources/Private/Language/locallang_be.xlf:extConf.useConfigurationTrackRecordsOutsideSiteroot
 useConfigurationTrackRecordsOutsideSiteroot = 1
 
@@ -24,3 +27,4 @@ enableRouteEnhancer = 0
 
 # cat=advanced/enable/e; type=boolean; label=LLL:EXT:solr/Resources/Private/Language/locallang_be.xlf:extConf.allowSelfSignedCertificates
 allowSelfSignedCertificates = 0
+

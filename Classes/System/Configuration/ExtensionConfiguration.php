@@ -161,4 +161,13 @@ class ExtensionConfiguration
     {
         return $this->configuration[$key] ?? $defaultValue;
     }
+
+    /**
+     * Returns the desired default language uid
+     * @return int
+     */
+    public function getDefaultLanguageId(): int
+    {
+        return (int)$this->getConfigurationOrDefaultValue('defaultLanguageUid', 0);
+    }
 }
