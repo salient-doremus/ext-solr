@@ -44,6 +44,7 @@ use Throwable;
 use TYPO3\CMS\Core\Context\LanguageAspectFactory;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Type\Bitmask\PageTranslationVisibility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -558,6 +559,9 @@ class Indexer extends AbstractIndexer
      */
     protected function getTranslationOverlaysWithConfiguredSite(int $pageId, Site $site, array $siteLanguages): array
     {
+        $page = $this->pagesRepository->getPage($pageId, 'pid, l18n_cfg');
+        $visibility = new PageTranslationVisibility((int)($page['l18n_cfg'] ?? 0));
+
         /** @var array $translationOverlays All languages which are translated by editors */
         $translationOverlays = $this->pagesRepository->findTranslationOverlaysByPageId($pageId);
         $translationOverlaysByKey = [];
@@ -584,16 +588,15 @@ class Indexer extends AbstractIndexer
                 // Overlay exists for the fallback language
                 if (array_key_exists($fallbackId, $translationOverlaysByKey)) {
                     $enabledLanguagesOverlays[] = [
-                        'pid' => $pageId, // page pid should be the parent
+                        'pid' => $page['pid'],
                         'l10n_parent' => $pageId,
                         'sys_language_uid' => $languageId
                     ];
                 }
                 // or fallback language is the default language
-                // TODO This needs to check l18n_cfg just like PageIndexer->getSolrConnectionsByItem() as the fallback to language id 0 is not valid if the default translation/language is hidden
-                else if ($fallbackId === 0) {
+                else if ($fallbackId === 0 && !$visibility->shouldBeHiddenInDefaultLanguage()) {
                     $enabledLanguagesOverlays[] = [
-                        'pid' => $pageId, // page pid should be the parent not the uid
+                        'pid' => $page['pid'],
                         'l10n_parent' => $pageId,
                         'sys_language_uid' => $languageId
                     ];
@@ -602,7 +605,7 @@ class Indexer extends AbstractIndexer
             }
         }
 
-        return $translationOverlays;
+        return $enabledLanguagesOverlays;
     }
 
     /**
